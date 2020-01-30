@@ -1,6 +1,45 @@
 from collections import deque
 import math
 
+nodeLocations = {
+            'A1': (2,1),
+            'A2': (2,6),
+            'A3': (17,6),
+            'A4': (17,1),
+            'B1': (1,9),
+            'B2': (0,14),
+            'B3': (6,19),
+            'B4': (9,15),
+            'B5': (7,8),
+            'C1': (10,8),
+            'C2': (12,15),
+            'C3': (14,8),
+            'D1': (14,13),
+            'D2': (14,19),
+            'D3': (18,20),
+            'D4': (20,17),
+            'E1': (19,3),
+            'E2': (18,10),
+            'E3': (23,6),
+            'F1': (22,9),
+            'F2': (22,19),
+            'F3': (28,19),
+            'F4': (28,9),
+            'G1': (28,1),
+            'G2': (25,2),
+            'G3': (25,6),
+            'G4': (29,8),
+            'G5': (31,6),
+            'G6': (31,2),
+            'H1': (32,8),
+            'H2': (29,17),
+            'H3': (31,19),
+            'H4': (34,16),
+
+            'START': (1,3),
+            'GOAL': (34,19)
+        }
+
 class Graph:
 
     def __init__(self, adjList):
@@ -9,48 +48,19 @@ class Graph:
     def neighbors(self, v):
         return self.adjList[v]
 
-    # why the fuck is the heuristic all 1?
     def h(self, n):
-        H = {
 
-            'A1': 1,
-            'A2': 1,
-            'A3': 1,
-            'A4': 1,
-            'B1': 1,
-            'B2': 1,
-            'B3': 1,
-            'B4': 1,
-            'B5': 1,
-            'C1': 1,
-            'C2': 1,
-            'C3': 1,
-            'D1': 1,
-            'D2': 1,
-            'D3': 1,
-            'D4': 1,
-            'E1':1,
-            'E2':1,
-            'E3':1,
-            'F1':1,
-            'F2':1,
-            'F3':1,
-            'F4':1,
-            'G1':1,
-            'G2':1,
-            'G3':1,
-            'G4':1,
-            'G5':1,
-            'G6':1,
-            'H1':1,
-            'H2':1,
-            'H3':1,
-            'H4':1,
+        #heuristic is based on distance between current node to the goal node. no obstacles accounted for.
 
-            'START':1,
-            'GOAL':0
+        nodes = ['START','A1','A2','A3','A4','B1','B2','B3','B4','B5','C1','C2','C3','D1','D2','D3','D4','E1','E2','E3','F1','F2','F3','F4','G1','G2','G3','G4','G5','G6','H1','H2','H3','H4','GOAL']
 
-        }
+        H = {}
+        for x in nodes:
+            if x in nodeLocations:
+
+                heuristic = dist((nodeLocations[x]),(34,19))
+                H[x] = heuristic
+
 
         return H[n]
 
@@ -124,6 +134,7 @@ class Graph:
             closedList.add(n)
 
         print('sorry bud')
+
         return None
 
 def dist(start, target):

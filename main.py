@@ -1,15 +1,10 @@
 import pygame
 import sys
 import math
-
 from Graph import Graph
 from Node import PathCoords
+from Lines import AnimateLines
 
-# i guess hard code the environment
-
-# A starsearch function to return coordinate points
-
-# we then draw the line when we get that coordinate point
 
 # TODO graph the enviroment. Scale the coordinates. Identify vertices.
 
@@ -25,14 +20,19 @@ def dist(start, target):
 
 
 # NODE : (NEIGHBOR, COST/DISTANCE TO GET THERE)
+
+# this adj list couldve also been automated but it doesnt know its immediate neighbors.
+# maybe easier for a randomly generated environment.
+
 adjList = {
-    'START':[('A1',dist((1,3),(2,1))),('A2',dist((1,3),(2,6))),('B1',dist((1,3),(1,9))),('B2',dist((1,3),(0,14)))],
+    'START': [('A1', dist((1, 3), (2, 1))), ('A2', dist((1, 3), (2, 6))), ('B1', dist((1, 3), (1, 9))),
+              ('B2', dist((1, 3), (0, 14)))],
     'A1': [('A2', 5), ('A4', 15), ('B1', dist((2, 1), (1, 9))), ('B2', dist((2, 1), (0, 14)))],
     'A2': [('A1', 5), ('A3', 15), ('B1', dist((2, 6), (1, 9))), ('B5', dist((2, 6), (7, 8))),
            ('C1', dist((2, 6), (10, 8))), ('C3', dist((2, 6), (14, 8)))],
     'A3': [('A2', 15), ('A4', 5), ('C1', dist((17, 6), (10, 8))), ('C3', dist((17, 6), (14, 8))),
            ('C2', dist((17, 6), (12, 15))), ('D1', dist((17, 6), (14, 13))), ('E2', dist((17, 6), (18, 10))),
-           ('E3', dist((17, 6), (19, 3))), ('B5', dist((17, 6), (7, 8)))],
+           ('B5', dist((17, 6), (7, 8)))],
     'A4': [('A3', 5), ('A1', 15), ('E1', dist((17, 1), (19, 3))), ('E2', dist((17, 1), (18, 10))),
            ('G2', dist((17, 1), (25, 2))), ('G3', dist((17, 1), (25, 6))), ('G1', dist((17, 1), (28, 1)))],
     'B1': [('A2', dist((1, 9), (2, 6))), ('B2', dist((1, 9), (0, 14))), ('B5', dist((1, 9), (7, 8)))],
@@ -72,48 +72,62 @@ adjList = {
     'F3': [('F2', 6), ('F4', 10), ('H2', dist((28, 19), (29, 17))), ('H3', dist((28, 19), (31, 19)))],
     'F4': [('F1', 6), ('F2', 10), ('H2', dist((28, 9), (29, 17))), ('H1', dist((32, 8), (28, 9))),
            ('G4', dist((28, 9), (29, 8))), ('G3', dist((28, 9), (25, 6))), ('E3', dist((23, 6), (28, 9)))],
-    'G1': [('G2',dist((28,1),(25,2))),('G6',dist((31,2),(28,1))),('A4',11)],
-    'G2': [('G1',dist((28,1),(25,2))),('G3',dist((25,6),(25,2))),('E1',dist((19,3),(25,2))),('E3',dist((23,6),(25,2))),('A4',dist((17,1),(25,2)))],
-    'G3': [('G2',4),('G4',dist((25,6),(29,8))),('E3',dist((25,6),(23,6))),('E1',dist((25,6),(19,3))),('A4',dist((17,1),(25,6)))],
-    'G4': [('G3',dist((29,8),(25,6))),('G5',dist((31,6),(29,8))),('F4',dist((28,9),(29,8))),('G4',dist((22, 9), (29, 8))),('E3',dist((29, 8), (23, 6))),('H1',dist((32,8),(29,8))),('H2',dist((29,8),(29,17)))],
-    'G5': [('G4',dist((29,8),(31,6))),('G6',4),('H1',dist((32,8),(31,6)))],
-    'G6': [('G5',4),('G1',dist((28,1),(31,2)))],
-    'H1': [('G5',dist((32,8),(31,6))),('H2',dist((29,17),(32,8))),('H4',dist((34,16),(32,8))),('F4',dist((32, 8), (28, 9))),('G4',dist((32,8),(29,8)))],
-    'H2': [('H1',dist((29,17),(32,8))),('H3',dist((31,19),(29,17))),('F3',dist((28, 19), (29, 17))),('F4',dist((28, 9), (29, 17))),('G4',dist((29,8),(29,17)))],
-    'H3': [('H2',dist((31,19),(29,17))),('H4',dist((31,19),(34,16))),('F3',3),('GOAL',dist((31,19),(34,19)))],
-    'H4': [('H1',dist((34,16),(32,8))),('H3',dist((31,19),(34,16))),('GOAL',dist((34,19),(34,16)))],
-    'GOAL':[('H4',dist((34,19),(34,16))),('H3',dist((31,19),(34,19)))]
+    'G1': [('G2', dist((28, 1), (25, 2))), ('G6', dist((31, 2), (28, 1))), ('A4', 11)],
+    'G2': [('G1', dist((28, 1), (25, 2))), ('G3', dist((25, 6), (25, 2))), ('E1', dist((19, 3), (25, 2))),
+           ('E3', dist((23, 6), (25, 2))), ('A4', dist((17, 1), (25, 2)))],
+    'G3': [('G2', 4), ('G4', dist((25, 6), (29, 8))), ('E3', dist((25, 6), (23, 6))), ('E1', dist((25, 6), (19, 3))),
+           ('A4', dist((17, 1), (25, 6)))],
+    'G4': [('G3', dist((29, 8), (25, 6))), ('G5', dist((31, 6), (29, 8))), ('F4', dist((28, 9), (29, 8))),
+           ('G4', dist((22, 9), (29, 8))), ('E3', dist((29, 8), (23, 6))), ('H1', dist((32, 8), (29, 8))),
+           ('H2', dist((29, 8), (29, 17)))],
+    'G5': [('G4', dist((29, 8), (31, 6))), ('G6', 4), ('H1', dist((32, 8), (31, 6)))],
+    'G6': [('G5', 4), ('G1', dist((28, 1), (31, 2)))],
+    'H1': [('G5', dist((32, 8), (31, 6))), ('H2', dist((29, 17), (32, 8))), ('H4', dist((34, 16), (32, 8))),
+           ('F4', dist((32, 8), (28, 9))), ('G4', dist((32, 8), (29, 8)))],
+    'H2': [('H1', dist((29, 17), (32, 8))), ('H3', dist((31, 19), (29, 17))), ('F3', dist((28, 19), (29, 17))),
+           ('F4', dist((28, 9), (29, 17))), ('G4', dist((29, 8), (29, 17)))],
+    'H3': [('H2', dist((31, 19), (29, 17))), ('H4', dist((31, 19), (34, 16))), ('F3', 3),
+           ('GOAL', dist((31, 19), (34, 19)))],
+    'H4': [('H1', dist((34, 16), (32, 8))), ('H3', dist((31, 19), (34, 16))), ('GOAL', dist((34, 19), (34, 16)))],
+    'GOAL': [('H4', dist((34, 19), (34, 16))), ('H3', dist((31, 19), (34, 19)))]
 
 }
 
-AStarAnalysis = Graph(adjList)
-newPath = AStarAnalysis.a_star('START', 'GOAL')
 
+####MAIN EVENT#####
+AStarAnalysis = Graph(adjList)
+newPath = AStarAnalysis.a_star('START', 'E3')
 
 convertPath = PathCoords(newPath)
 coordinateList = convertPath.convertCoordinates()
 
 
-
-
 pygame.init()
 
-screen = pygame.display.set_mode((800, 400))
+
+window = pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE
+screen = pygame.display.set_mode((800, 400),window)
 backgroundColor = (255, 255, 255)
 
 BLACK = (0, 0, 0)
-GREEN = (  0, 255,   0)
+GREEN = (0, 255, 0)
 done = False
 
-pygame.display.set_caption('A* Trash Test')
+clock  = pygame.time.Clock()
+
+pygame.display.set_caption('A STAR IS CANCER')
 
 while not done:
+
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
 
     screen.fill(backgroundColor)
+
+
 
     # Rectangle
     pygame.draw.line(screen, BLACK, adjustCoordinates(2, 6), adjustCoordinates(17, 6), 3)
@@ -141,16 +155,16 @@ while not done:
 
     # Triangle
     pygame.draw.line(screen, BLACK, adjustCoordinates(18, 10), adjustCoordinates(23, 6), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(23, 6), adjustCoordinates(19, 13), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(19, 13), adjustCoordinates(18, 10), 3)
+    pygame.draw.line(screen, BLACK, adjustCoordinates(23, 6), adjustCoordinates(19, 3), 3)
+    pygame.draw.line(screen, BLACK, adjustCoordinates(19, 3), adjustCoordinates(18, 10), 3)
 
-    #F TANGLE
+    # F TANGLE
     pygame.draw.line(screen, BLACK, adjustCoordinates(22, 19), adjustCoordinates(28, 19), 3)
     pygame.draw.line(screen, BLACK, adjustCoordinates(22, 19), adjustCoordinates(22, 9), 3)
     pygame.draw.line(screen, BLACK, adjustCoordinates(22, 9), adjustCoordinates(28, 9), 3)
     pygame.draw.line(screen, BLACK, adjustCoordinates(28, 9), adjustCoordinates(28, 19), 3)
 
-    #HEX
+    # HEX
     pygame.draw.line(screen, BLACK, adjustCoordinates(29, 8), adjustCoordinates(31, 6), 3)
     pygame.draw.line(screen, BLACK, adjustCoordinates(31, 6), adjustCoordinates(31, 2), 3)
     pygame.draw.line(screen, BLACK, adjustCoordinates(31, 2), adjustCoordinates(28, 1), 3)
@@ -164,22 +178,14 @@ while not done:
     pygame.draw.line(screen, BLACK, adjustCoordinates(32, 8), adjustCoordinates(29, 17), 3)
     pygame.draw.line(screen, BLACK, adjustCoordinates(29, 17), adjustCoordinates(31, 19), 3)
 
-    pygame.draw.line(screen, GREEN, (20,340), (40,280), 3)
-    pygame.draw.line(screen, GREEN, (40,280),(280,240), 3)
-    pygame.draw.line(screen, GREEN, (280,240), (360,200), 3)
-    pygame.draw.line(screen, GREEN, (360,200), (440,20), 3)
-    pygame.draw.line(screen, GREEN, (440,20), (560,20), 3)
-    pygame.draw.line(screen, GREEN, (560,20), (620,20), 3)
-    pygame.draw.line(screen, GREEN, (620,20), (680,20), 3)
 
 
+    #PATH
 
+    for i in coordinateList:
 
+        pygame.draw.line(screen, GREEN,i[0],i[1],3)
 
-
-
-    # rip this is a filled polygon. wait that can work lmao
-    # probably better to get
 
     pygame.display.flip()
 

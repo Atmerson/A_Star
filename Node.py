@@ -1,5 +1,5 @@
 import sys
-
+import itertools
 
 class PathCoords:
     def __init__(self,PathList):
@@ -48,39 +48,26 @@ class PathCoords:
 
     def convertCoordinates(self):
         coordList = [self.nodeLocations[i] for i in self.pathlist]
+
+
         graphPath = []
+        index = 1
         for x in coordList:
 
-            X = (20 * x[0])
-            Y = 400 - (20 * x[1])
-            graphPath.append((X,Y))
+            try:
+                endpoint = coordList[index]
+                X0 = (20 * x[0])
+                Y0 = 400 - (20 * x[1])
+                X1 = (20 * endpoint[0])
+                Y1 = 400 - (20 * endpoint[1])
+                graphPairs = ((X0,Y0),(X1,Y1))
+                graphPath.append(graphPairs)
+                index = index + 1
+
+            except IndexError:
+                pass
 
 
 
         return graphPath
-
-
-
-
-        #RETURNS PYGAME COORD.
-
-
-
-test = PathCoords(['START', 'A2', 'C3', 'E2', 'F2', 'F3', 'H3', 'GOAL'])
-
-finalPath = test.convertCoordinates()
-
-print(finalPath)
-
-
-# 1. after A star gives path, convert path nodes in this class.
-# 2. with the array of coordinates, draw new lines on those coords
-#
-# Can create a method which draws that line
-#
-#Each Node wil
-#TODO Hard code adjacency list on Astar class.
-
-
-
 
