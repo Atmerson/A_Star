@@ -6,7 +6,7 @@ from Node import PathCoords
 from Lines import AnimateLines
 
 
-# TODO graph the enviroment. Scale the coordinates. Identify vertices.
+# TODO Condense adjaceny list.
 
 def adjustCoordinates(x, y):
     newX = (20 * x)
@@ -93,41 +93,39 @@ adjList = {
 
 }
 
-
 ####MAIN EVENT#####
-AStarAnalysis = Graph(adjList)
-newPath = AStarAnalysis.a_star('START', 'E3')
 
+
+
+
+#Feed Env to A star. State start and target.
+AStarAnalysis = Graph(adjList)
+newPath = AStarAnalysis.a_star('START', 'GOAL')
+
+#Convert path to PyGame coordinates for mapping.
 convertPath = PathCoords(newPath)
 coordinateList = convertPath.convertCoordinates()
 
-
 pygame.init()
 
-
-window = pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE
-screen = pygame.display.set_mode((800, 400),window)
+window = pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE
+screen = pygame.display.set_mode((800, 400), window)
 backgroundColor = (255, 255, 255)
-
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 done = False
 
-clock  = pygame.time.Clock()
+clock = pygame.time.Clock()
 
 pygame.display.set_caption('A STAR IS CANCER')
 
 while not done:
-
-
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
 
     screen.fill(backgroundColor)
-
-
 
     # Rectangle
     pygame.draw.line(screen, BLACK, adjustCoordinates(2, 6), adjustCoordinates(17, 6), 3)
@@ -178,14 +176,10 @@ while not done:
     pygame.draw.line(screen, BLACK, adjustCoordinates(32, 8), adjustCoordinates(29, 17), 3)
     pygame.draw.line(screen, BLACK, adjustCoordinates(29, 17), adjustCoordinates(31, 19), 3)
 
-
-
-    #PATH
+    # PATH
 
     for i in coordinateList:
-
-        pygame.draw.line(screen, GREEN,i[0],i[1],3)
-
+        pygame.draw.line(screen, GREEN, i[0], i[1], 3)
 
     pygame.display.flip()
 
