@@ -1,9 +1,8 @@
 import pygame
 import sys
 import math
-from Graph import Graph
+from AStar import AStar
 from Node import PathCoords
-from Lines import AnimateLines
 
 
 # TODO Condense adjaceny list.
@@ -99,8 +98,8 @@ adjList = {
 
 
 #Feed Env to A star. State start and target.
-AStarAnalysis = Graph(adjList)
-newPath = AStarAnalysis.a_star('START', 'GOAL')
+AStar = AStar(adjList)
+newPath = AStar.analysis('START', 'GOAL')
 
 #Convert path to PyGame coordinates for mapping.
 convertPath = PathCoords(newPath)
@@ -117,7 +116,7 @@ done = False
 
 clock = pygame.time.Clock()
 
-pygame.display.set_caption('A STAR IS CANCER')
+pygame.display.set_caption('A STAR')
 
 while not done:
 

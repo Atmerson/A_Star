@@ -2,7 +2,7 @@ import math
 
 
 # A star analysis
-class Graph:
+class AStar:
     """
     Graph Object includes A-Star evaluation and Heuristics.
 
@@ -71,35 +71,35 @@ class Graph:
 
         return H[n]
 
-    def a_star(self, startNode: str, goalNode: str):
+    def analysis(self, startNode: str, goalNode: str):
         print('ANALYZING PATH FOR ' + startNode + ' NODE TO ' + goalNode + ' NODE')
         # list of nodes that have been visited but neighbors have not been visited.
-        openList = set([startNode])  # set() basically returns a sorted list. sick
+
 
         # list of nodes AND neighbors visited a
+        # set returns a sorted list. (noice).
         closedList = set([])
+        openList = set([startNode])
 
-        # g contains current distances from start node to all other nodes.
-        # will also always have the start node to begin with
-        g = {startNode: 0}
 
-        # parents contains adjacency map of all nodes.
-        parents = {startNode: startNode}
+        g = {startNode: 0} #the g dict contains the distance from the start node to other nodes.
+
+        parents = {startNode: startNode} # parents contains adjacency map of all nodes.
 
         while len(openList) > 0:
-            n = None
+            try:
+                n = None
+                for i in openList:
+                    if n == None or g[i] + self.h(i) < g[n] + self.h(n):
+                        n = i;
+                        # N is the node we are going to evaluate.
+                        # v is what we are checking in the open list
 
-            # find a node with the lowest f() value
+            except IndexError:
+                pass
 
-            for v in openList:
-                if n == None or g[v] + self.h(v) < g[n] + self.h(n):
-                    n = v;
-                    # N is the node we are going to evaluate.
-                    # v is what we are checking in the open list
 
-            if n == None:
-                print('youre screwed bud')
-                return None
+
 
             if n == goalNode:
                 newPath = []
@@ -114,40 +114,41 @@ class Graph:
                 newPath.reverse()
 
                 print('FINAL PATH FOUND: {}'.format(newPath))
-                print(closedList)
-                print(openList)
-                print(g)
+
                 return newPath
 
-            # for all the neighbors in the current node do
-            for (m, weight) in self.neighbors(n):
+            if n == None:
+                print('NO PATH CONSTRUCTED.')
+                return None
 
-                # goes around the node and adds its neigbors to the open list.
-                if m not in openList and m not in closedList:
-                    openList.add(m)
 
-                    parents[m] = n
-                    # g contains all the distances of the nodes.
-                    g[m] = g[n] + weight
+            for (v, weight) in self.neighbors(n):
+
+
+                if v not in closedList and v not in openList:
+                    openList.add(v)
+
+                    parents[v] = n
+
+                    g[v] = g[n] + weight
 
 
                 else:
-                    if g[m] > g[n] + weight:
-                        g[m] = g[n] + weight
-                        parents[m] = n
+                    if g[v] > g[n] + weight:
+                        g[v] = g[n] + weight
+                        parents[v] = n
 
-                        if m in closedList:
-                            closedList.remove(m)
-                            openList.add(m)
+                        if v in closedList:
+                            closedList.remove(v)
+                            openList.add(v)
 
             openList.remove(n)
-
             closedList.add(n)
 
         print('NO PATH AVAILABLE')
 
         return None
-
+    
 
 def dist(start, target):
     return math.sqrt(((target[0] - start[0]) ** 2) + ((target[1] - start[1]) ** 2))
