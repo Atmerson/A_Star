@@ -91,17 +91,27 @@ adjList = {
     'GOAL': [('H4', dist((34, 19), (34, 16))), ('H3', dist((31, 19), (34, 19)))]
 
 }
+#fill this bad boi up
+newEnvironment = {}
+
 
 ####MAIN EVENT#####
 
-
-
-
-#Feed Env to A star. State start and target.
+# Feed Env to A star. State start and target.
 AStar = AStar(adjList)
+
+print('Enter Environment: ')
+env = input()
+print('Enter Cost Constraint: ')
+costConstraint = input()
+
+AStar.constraint(int(costConstraint))
+#max cost for env1: 70.28645749315652
+
 newPath = AStar.analysis('START', 'GOAL')
 
-#Convert path to PyGame coordinates for mapping.
+
+# Convert path to PyGame coordinates for mapping.
 convertPath = PathCoords(newPath)
 coordinateList = convertPath.convertCoordinates()
 
@@ -183,3 +193,6 @@ while not done:
     pygame.display.flip()
 
 pygame.quit()
+
+# TODO: switch from one environment to the other
+# Fix methods for nodelocations.
