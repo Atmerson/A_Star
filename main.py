@@ -1,6 +1,7 @@
 import pygame
 import sys
 import math
+
 from AStar import AStar
 from Node import PathCoords
 
@@ -23,7 +24,7 @@ def dist(start, target):
 # this adj list couldve also been automated but it doesnt know its immediate neighbors.
 # maybe easier for a randomly generated environment.
 
-adjList = {
+env1 = {
     'START': [('A1', dist((1, 3), (2, 1))), ('A2', dist((1, 3), (2, 6))), ('B1', dist((1, 3), (1, 9))),
               ('B2', dist((1, 3), (0, 14)))],
     'A1': [('A2', 5), ('A4', 15), ('B1', dist((2, 1), (1, 9))), ('B2', dist((2, 1), (0, 14)))],
@@ -91,29 +92,98 @@ adjList = {
     'GOAL': [('H4', dist((34, 19), (34, 16))), ('H3', dist((31, 19), (34, 19)))]
 
 }
-#fill this bad boi up
-newEnvironment = {}
 
+env1coords = {
+
+            'A1': (2, 1),
+            'A2': (2, 6),
+            'A3': (17, 6),
+            'A4': (17, 1),
+            'B1': (1, 9),
+            'B2': (0, 14),
+            'B3': (6, 19),
+            'B4': (9, 15),
+            'B5': (7, 8),
+            'C1': (10, 8),
+            'C2': (12, 15),
+            'C3': (14, 8),
+            'D1': (14, 13),
+            'D2': (14, 19),
+            'D3': (18, 20),
+            'D4': (20, 17),
+            'E1': (19, 3),
+            'E2': (18, 10),
+            'E3': (23, 6),
+            'F1': (22, 9),
+            'F2': (22, 19),
+            'F3': (28, 19),
+            'F4': (28, 9),
+            'G1': (28, 1),
+            'G2': (25, 2),
+            'G3': (25, 6),
+            'G4': (29, 8),
+            'G5': (31, 6),
+            'G6': (31, 2),
+            'H1': (32, 8),
+            'H2': (29, 17),
+            'H3': (31, 19),
+            'H4': (34, 16),
+
+            'START': (1, 3),
+            'GOAL': (34, 19)
+        }
+#fill this bad boi up
+env2 = {
+    'A1' : [('A2',dist((7,8),(10,8))),('A3',dist((7,8),(9,15))),('C1',dist((7,8),(2,6))),('E1',dist((6,19),(7,8)))],
+    'A2' : [('A1',dist((10,8),(7,8))),('A3',dist((10,8),(9,15))),('E3',dist((12,15),(10,8))),('B3',dist((14,13),(10,8))),('B1',dist((14,8),(10,8))),('C1',dist((2,6),(10,8))),('C3',dist((23,6),(10,8)))],
+    'A3' : [('A1',dist((9,15),(7,8))),('A2',dist((9,15),(10,8))),('E3',3),('E1',dist((6,19),(9,15))),('B3',dist((9,15),(14,13))),('B1',dist((9,15),(14,8))),('C1',dist((2,6),(9,15)))],
+    'B1' : [('A2',4),('B3',dist((14,13),(14,8))),('B2',dist((22,10),(14,8))),('A3',dist((9,15),(14,8))),('E3',dist((12,15),(14,8))),('C1',dist((2,6),(14,8))),('C3',dist((23,6),(14,8)))],
+    'B2' : [('B1',dist((22,10),(14,8))),('B3',dist((22,10),(14,13))),('C3',dist((22,10),(23,6))),('D1',dist((25,6),(22,10))),('E2',dist((20,17),(22,10))),('D3',dist((28,19),(22,10)))],
+    'B3' : [('B1',5),('B2',dist((14,8),(22,10))),('E3',dist((12,15),(14,13))),('A2',dist((14,13),(10,8))),('A3',dist((9,15),(14,13))),('E2',dist((20,17),(14,13))),('D3',dist((28,19),(14,13)))],
+    'C1' : [('C2',dist((2,6),(17,1))),('C3',21),('A1',dist((2,6),(7,8))),('A2',dist((2,6),(10,8))),('B1',dist((14,8),(2,6))),('E1',dist((2,6),(6,19)))],
+    'C2' : [('C1',dist((17,1),(2,6))),('C3',dist((17,1),(23,6))),('D1',dist((25,6),(17,1)))],
+    'C3' : [('C2',dist((23,6),(17,1))),('C1',dist((23,6),(2,6))),('B2',dist((23,6),(22,10))),('D3',dist((28,19),(23,6))),('D1',2),('B1',dist((23,6),(14,8))),('A2',dist((10,8),(23,6))),('A2',dist((23,6),(10,8)))],
+    'D1' : [('D2',dist((25,6),(32,8))),('D3', dist((25,6),(28,19))),('B2',dist((22,10),(25,6))),('C3',2),('C2',dist((17,1),(25,6)))],
+    'D2' : [('D1',dist((25,6),(32,8))),('D3',dist((28,19),(32,8))),('C2',dist((17,1),(32,8))),('GOAL',dist((32,8),(34,10)))],
+    'D3' : [('D2',dist((28,19),(32,8))),('D1',dist((25,6),(28,19))),('E2',dist((20,17),(28,19))),('B2',dist((22,10),(28,19))),('C3',dist((28,19),(23,6))),('GOAL',dist((28,19),(34,10)))],
+    'E1' : [('E2',dist((20,17),(6,19))),('E3',dist((12,15),(6,19))),('A3',dist((9,15),(6,19))),('A1',dist((6,19),(7,8))),('C1',dist((6,19),(2,6)))],
+    'E2' : [('E1',dist((20,17),(6,19))),('E3',dist((12,15),(20,17))),('D3',dist((28,19),(20,17))),('B2',dist((20,17),(22,10))),('B3',dist((20,17),(14,13)))],
+    'E3' : [('E1',dist((12,15),(6,19))),('E2',dist((12,15),(20,17))),('A3',3),('B3',dist((14,13),(12,15))),('B1',dist((14,18),(12,15))),('A2',dist((12,15),(10,8))),('D3',dist((28,19),(12,15)))],
+    'START' : [('C1',dist((2,6),(2,14))),('A1',dist((7,8),(2,14))),('A3',dist((9,15),(2,14))),('E1',dist((6,19),(2,14)))],
+    'GOAL' : [('D3',dist((28,19),(34,10))),('D2',dist((32,8),(34,10)))]
+
+}
+
+
+env2coords = {
+    'A1': (7,8),
+    'A2': (10,8),
+    'A3': (9,15),
+    'B1': (14,8),
+    'B2':(22,10),
+    'B3':(14,13),
+    'C1':(2,6),
+    'C2':(17,1),
+    'C3':(23,6),
+    'D1':(25,6),
+    'D2':(32,8),
+    'D3':(28,19),
+    'E1':(6,19),
+    'E2':(20,17),
+    'E3':(12,15),
+    'START' : (2,14),
+    'GOAL' : (34, 10)
+}
 
 ####MAIN EVENT#####
 
 # Feed Env to A star. State start and target.
-AStar = AStar(adjList)
 
-print('Enter Environment: ')
-env = input()
+
+
 print('Enter Cost Constraint: ')
 costConstraint = input()
 
-AStar.constraint(int(costConstraint))
-#max cost for env1: 70.28645749315652
-
-newPath = AStar.analysis('START', 'GOAL')
-
-
-# Convert path to PyGame coordinates for mapping.
-convertPath = PathCoords(newPath)
-coordinateList = convertPath.convertCoordinates()
 
 pygame.init()
 
@@ -123,76 +193,149 @@ backgroundColor = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 done = False
-
+environment = 0
 clock = pygame.time.Clock()
 
 pygame.display.set_caption('A STAR')
 
+
+pygame.draw.polygon(screen,BLACK, [adjustCoordinates(7,8),adjustCoordinates(10,8),adjustCoordinates(9,15)])
+
+
+###### INPUT BOX TEST ######
+
+
 while not done:
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-
+    events = pygame.event.get()
     screen.fill(backgroundColor)
 
-    # Rectangle
-    pygame.draw.line(screen, BLACK, adjustCoordinates(2, 6), adjustCoordinates(17, 6), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(2, 1), adjustCoordinates(17, 1), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(2, 1), adjustCoordinates(2, 6), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(17, 1), adjustCoordinates(17, 6), 3)
+    for event in events:
+        if event.type == pygame.QUIT:
+            done = True
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                environment = 1
+                AStar = AStar(env1, env1coords)
+                AStar.constraint(int(costConstraint))
+                newPath = AStar.analysis('START', 'GOAL')
 
-    # Pentagon
-    pygame.draw.line(screen, BLACK, adjustCoordinates(0, 14), adjustCoordinates(6, 19), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(6, 19), adjustCoordinates(9, 15), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(9, 15), adjustCoordinates(7, 8), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(7, 8), adjustCoordinates(1, 9), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(1, 9), adjustCoordinates(0, 14), 3)
+                # Convert path to PyGame coordinates for mapping.
+                convertPath = PathCoords(newPath, env1coords)
+                coordinateList = convertPath.convertCoordinates()
 
-    # Triangle
-    pygame.draw.line(screen, BLACK, adjustCoordinates(10, 8), adjustCoordinates(14, 8), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(14, 8), adjustCoordinates(12, 15), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(12, 15), adjustCoordinates(10, 8), 3)
 
-    # Quadri
-    pygame.draw.line(screen, BLACK, adjustCoordinates(14, 19), adjustCoordinates(18, 20), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(18, 20), adjustCoordinates(20, 17), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(20, 17), adjustCoordinates(14, 13), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(14, 13), adjustCoordinates(14, 19), 3)
+            if event.key == pygame.K_2:
 
-    # Triangle
-    pygame.draw.line(screen, BLACK, adjustCoordinates(18, 10), adjustCoordinates(23, 6), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(23, 6), adjustCoordinates(19, 3), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(19, 3), adjustCoordinates(18, 10), 3)
+                environment = 2
+                AStar = AStar(env2, env2coords)
+                AStar.constraint(int(costConstraint))
+                newPath = AStar.analysis('START', 'GOAL')
 
-    # F TANGLE
-    pygame.draw.line(screen, BLACK, adjustCoordinates(22, 19), adjustCoordinates(28, 19), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(22, 19), adjustCoordinates(22, 9), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(22, 9), adjustCoordinates(28, 9), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(28, 9), adjustCoordinates(28, 19), 3)
+                # Convert path to PyGame coordinates for mapping.
+                convertPath = PathCoords(newPath, env2coords)
+                coordinateList = convertPath.convertCoordinates()
 
-    # HEX
-    pygame.draw.line(screen, BLACK, adjustCoordinates(29, 8), adjustCoordinates(31, 6), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(31, 6), adjustCoordinates(31, 2), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(31, 2), adjustCoordinates(28, 1), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(28, 1), adjustCoordinates(25, 2), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(25, 2), adjustCoordinates(25, 6), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(25, 6), adjustCoordinates(29, 8), 3)
 
-    # H LATERAL
-    pygame.draw.line(screen, BLACK, adjustCoordinates(31, 19), adjustCoordinates(34, 16), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(34, 16), adjustCoordinates(32, 8), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(32, 8), adjustCoordinates(29, 17), 3)
-    pygame.draw.line(screen, BLACK, adjustCoordinates(29, 17), adjustCoordinates(31, 19), 3)
+
+
+
+
+
+
+
+    if environment == 1:
+
+        pygame.draw.circle(screen,BLACK, adjustCoordinates(1,3),8)
+        pygame.draw.circle(screen,BLACK, adjustCoordinates(34,19),8)
+
+        # Rectangle
+        pygame.draw.line(screen, BLACK, adjustCoordinates(2, 6), adjustCoordinates(17, 6), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(2, 1), adjustCoordinates(17, 1), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(2, 1), adjustCoordinates(2, 6), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(17, 1), adjustCoordinates(17, 6), 3)
+
+        # Pentagon
+        pygame.draw.line(screen, BLACK, adjustCoordinates(0, 14), adjustCoordinates(6, 19), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(6, 19), adjustCoordinates(9, 15), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(9, 15), adjustCoordinates(7, 8), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(7, 8), adjustCoordinates(1, 9), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(1, 9), adjustCoordinates(0, 14), 3)
+
+        # Triangle
+        pygame.draw.line(screen, BLACK, adjustCoordinates(10, 8), adjustCoordinates(14, 8), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(14, 8), adjustCoordinates(12, 15), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(12, 15), adjustCoordinates(10, 8), 3)
+
+        # Quadri
+        pygame.draw.line(screen, BLACK, adjustCoordinates(14, 19), adjustCoordinates(18, 20), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(18, 20), adjustCoordinates(20, 17), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(20, 17), adjustCoordinates(14, 13), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(14, 13), adjustCoordinates(14, 19), 3)
+
+        # Triangle
+        pygame.draw.line(screen, BLACK, adjustCoordinates(18, 10), adjustCoordinates(23, 6), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(23, 6), adjustCoordinates(19, 3), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(19, 3), adjustCoordinates(18, 10), 3)
+
+        # F TANGLE
+        pygame.draw.line(screen, BLACK, adjustCoordinates(22, 19), adjustCoordinates(28, 19), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(22, 19), adjustCoordinates(22, 9), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(22, 9), adjustCoordinates(28, 9), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(28, 9), adjustCoordinates(28, 19), 3)
+
+        # HEX
+        pygame.draw.line(screen, BLACK, adjustCoordinates(29, 8), adjustCoordinates(31, 6), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(31, 6), adjustCoordinates(31, 2), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(31, 2), adjustCoordinates(28, 1), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(28, 1), adjustCoordinates(25, 2), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(25, 2), adjustCoordinates(25, 6), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(25, 6), adjustCoordinates(29, 8), 3)
+
+        # H LATERAL
+        pygame.draw.line(screen, BLACK, adjustCoordinates(31, 19), adjustCoordinates(34, 16), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(34, 16), adjustCoordinates(32, 8), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(32, 8), adjustCoordinates(29, 17), 3)
+        pygame.draw.line(screen, BLACK, adjustCoordinates(29, 17), adjustCoordinates(31, 19), 3)
+
+        for i in coordinateList:
+            pygame.draw.line(screen, GREEN, i[0], i[1], 3)
 
     # PATH
+    elif environment == 2:
 
-    for i in coordinateList:
-        pygame.draw.line(screen, GREEN, i[0], i[1], 3)
 
+        #A
+        pygame.draw.polygon(screen, BLACK,[adjustCoordinates(7, 8), adjustCoordinates(10, 8), adjustCoordinates(9, 15)],3)
+
+        #B
+        pygame.draw.polygon(screen,BLACK,[adjustCoordinates(14,8),adjustCoordinates(14,13),adjustCoordinates(22,10)],3)
+
+        #C
+        pygame.draw.polygon(screen,BLACK,[adjustCoordinates(2,6),adjustCoordinates(17,1),adjustCoordinates(23,6)],3)
+        # for i in coordinateList:
+
+        #D
+        pygame.draw.polygon(screen,BLACK,[adjustCoordinates(28,19),adjustCoordinates(25,6),adjustCoordinates(32,8)],3)
+        #     pygame.draw.line(screen, GREEN, i[0], i[1], 3)
+
+        #E
+        pygame.draw.polygon(screen,BLACK,[adjustCoordinates(6,19),adjustCoordinates(20,17),adjustCoordinates(12,15)],3)
+
+        pygame.draw.circle(screen,BLACK,adjustCoordinates(2,14),8)
+        pygame.draw.circle(screen,BLACK,adjustCoordinates(34,10),8)
+
+        for i in coordinateList:
+            pygame.draw.line(screen, GREEN, i[0], i[1], 3)
+
+    pygame.display.update()
     pygame.display.flip()
+
+
+
 
 pygame.quit()
 
-# TODO: switch from one environment to the other
-# Fix methods for nodelocations.
+# TODO: switch from one environment to the other || change constructors for classes to support new environment.
+
+
+
